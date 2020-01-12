@@ -63,6 +63,24 @@ $route = function($handler) {
 			}
 		}
 
+		/* Custom Go Lift TV Code */
+		$webauth_user = $_SERVER['X-WEBAUTH-USER'];
+		if ($webauth_user != "" && $webauth_user != "Guest" && strpos($webauth_user, '@') === false) {
+			$user_db = CHV\User::getSingle($webauth_user, 'username', false);
+			if ($user_db) {
+				$request_log_insert['user_id'] = $user_db['user_id'];
+				$request_log_insert['result'] = 'success';
+				CHV\Requestlog::insert($request_log_insert);
+				CHV\Login::insert(['type' => 'cookie', 'user_id' => $user_db['user_id']]);
+				$redirect_to = CHV\User::getUrl(CHV\Login::getUser());
+				if ($_SESSION['last_url']) {
+					$redirect_to = $_SESSION['last_url'];
+				}
+				G\redirect($redirect_to);
+			}
+		}
+		/* End Custom */
+
 		if($_POST && !$is_error) {
 
 			$login_by = filter_var($_POST['login-subject'], FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
