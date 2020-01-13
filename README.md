@@ -1,7 +1,11 @@
 # Go Lift TV - Chevereto Free
 
-The changes in this fork are slim. They allow proxy auth. I use this behind [Organizr](https://github.com/causefx/Organizr) using Nginx proxy auth. **If you use this code you must protect your login and signup paths!**
-This only allows usernames without `@`'s in them (not email addresses), and the signup form mentions plex.tv and captain. You should consider customizing that page yourself, but make note of the changes here.
+The changes in this fork allow Nginx proxy auth. [I use this](https://golift.tv/img/)
+behind [Organizr](https://github.com/causefx/Organizr) with Nginx proxy auth.
+**If you use this code you must protect your login and signup paths!**
+This only allows usernames without `@`'s in them (not email addresses), and the signup
+form  mentions plex.tv and captain. You should consider customizing that page yourself,
+but make note of the changes here.
 
 This is the running nginx config. Chevereto is installed at `/config/www/img/`.
 ```shell
@@ -23,7 +27,6 @@ location /img {
     auth_request     /auth-4;
     auth_request_set $webuser $upstream_http_x_organizr_user;
     include          /etc/nginx/fastcgi_params;
-    # try_files might work here. I didn't even try...
     fastcgi_param    X-WEBAUTH-USER $webuser;
     fastcgi_param    SCRIPT_FILENAME $document_root/img/index.php;
     fastcgi_param    SCRIPT_NAME /img/index.php;
