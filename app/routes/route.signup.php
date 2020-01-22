@@ -79,6 +79,11 @@ $route = function($handler) {
 
 		if($_POST && !$is_error && !$_SESSION['signup']) {
 
+			/* Custom Go Lift TV Code */
+			if ($_SERVER['X-WEBAUTH-USER'] != "" && $_SERVER['X-WEBAUTH-USER'] != "Guest") {
+				$_POST['username'] = $_SERVER['X-WEBAUTH-USER'];
+			}
+			/* End Custom */
 			$__post = [];
 			$__safe_post = [];
 			foreach(['username', 'email'] as $v) {

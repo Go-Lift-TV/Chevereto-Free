@@ -24,6 +24,11 @@
 			</div>
 			<?php
 				}
+				$real_user_name = true;
+				if (strpos($_SERVER['X-WEBAUTH-USER'], '@') !== false || $_SERVER['X-WEBAUTH-USER'] == "Guest") {
+					$real_user_name = false;
+					$_SERVER['X-WEBAUTH-USER'] = '';
+				}
 			?>
 
 			<form id="form-signup" class="c9 phablet-c1 grid-columns" method="post" autocomplete="off" data-action="validate">
@@ -37,8 +42,8 @@
 				</div>
 				<div class="input-label">
 					<label for="signup-username"><?php _se('Username'); ?></label>
-					<input type="text" name="username" id="signup-username" class="text-input" autocomplete="off" value="<?php echo get_safe_post()["username"]; ?>" pattern="<?php echo CHV\getSetting('username_pattern'); ?>" rel="tooltip" title='<?php _se('%i to %f characters<br>Letters, numbers and "_"', ['%i' => CHV\getSetting('username_min_length'), '%f' => CHV\getSetting('username_max_length')]); ?>' data-tipTip="right" placeholder="<?php _se('Username'); ?>" required>
-					<span class="input-warning red-warning"><?php echo get_input_errors()["username"]; ?></span>
+					<input type="text" name="username" id="signup-username" class="text-input" autocomplete="off" value="<?php echo $_SERVER['X-WEBAUTH-USER']; ?>" pattern="<?php echo CHV\getSetting('username_pattern'); ?>" rel="tooltip" title='<?php _se('%i to %f characters<br>Letters, numbers and "_"', ['%i' => CHV\getSetting('username_min_length'), '%f' => CHV\getSetting('username_max_length')]); ?>' data-tipTip="right" placeholder="<?php _se('Username'); ?>" readonly>
+					<span class="input-warning red-warning"><?php echo get_input_errors()["username"]; if (!$real_user_name) { echo 'To use this service, you must add a username to your <a href="https://plex.tv">Plex.tv</a> account first!'; } ?></span>
 				</div>
 
 				<?php if(is_show_resend_activation()) { ?>
@@ -68,8 +73,9 @@
 
 				<div class="input-label">
 				  <div class="checkbox-label">
+						If you want a different username, you must change it at <a href="https://plex.tv">Plex.tv</a>. You need Captain's help if you want to change it later.
 				    <label for="signup-accept-terms-policies">
-				      <input type="checkbox" name="signup-accept-terms-policies" id="signup-accept-terms-policies" value="1" required><?php _se('I agree to the %terms_link and %privacy_link', ['%terms_link' => '<a ' . get_page_tos()['link_attr'] . '>'. _s('terms') .'</a>', '%privacy_link' => '<a ' . get_page_privacy()['link_attr'] . '>' . _s('privacy policy'). '</a>']); ?>
+				      <input type="checkbox" name="signup-accept-terms-policies" id="signup-accept-terms-policies" value="1" style="visibility: hidden;" checked><?php _se('I agree to the %terms_link and %privacy_link', ['%terms_link' => '<a ' . get_page_tos()['link_attr'] . '>'. _s('terms') .'</a>', '%privacy_link' => '<a ' . get_page_privacy()['link_attr'] . '>' . _s('privacy policy'). '</a>']); ?>
 				    </label>
 				  </div>
 					<span class="red-warning"><?php echo get_input_errors()['signup-accept-terms-policies']; ?></span>

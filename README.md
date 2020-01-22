@@ -1,4 +1,52 @@
-# Chevereto Free
+# Go Lift TV - Chevereto Free
+
+The changes in this fork allow Nginx proxy auth. [I use this](https://golift.tv/img/)
+behind [Organizr](https://github.com/causefx/Organizr) with Nginx proxy auth.
+**If you use this code you must protect your login and signup paths!**
+This only allows usernames without `@`'s in them (not email addresses), and the signup
+form  mentions plex.tv and captain. You should consider customizing that page yourself,
+but make note of the changes here.
+
+This is the running nginx config. Chevereto is installed at `/config/www/img/`.
+```shell
+location /img {
+  root /config/www/;
+  index index.php;
+  try_files $uri $uri/ /img/index.php?$query_string;
+
+  location ~ \.php$ {
+    fastcgi_split_path_info ^(.+\.php)(/.+)$;
+    fastcgi_param PHP_VALUE "upload_max_filesize=512M \n post_max_size=512M";
+    fastcgi_pass            127.0.0.1:9000;
+    fastcgi_index           index.php;
+    include                 /etc/nginx/fastcgi_params;
+  }
+
+  # Allow any "User" to signup for an account.
+  location /img/signup {
+    auth_request     /auth-4;
+    auth_request_set $webuser $upstream_http_x_organizr_user;
+    include          /etc/nginx/fastcgi_params;
+    fastcgi_param    X-WEBAUTH-USER $webuser;
+    fastcgi_param    SCRIPT_FILENAME $document_root/img/index.php;
+    fastcgi_param    SCRIPT_NAME /img/index.php;
+    fastcgi_pass     127.0.0.1:9000;
+  }
+
+  # Allow anyone to reach the login form, and pass any proxy auth credentials.
+  location /img/login {
+    auth_request     /auth-999;
+    auth_request_set $webuser $upstream_http_x_organizr_user;
+    include          /etc/nginx/fastcgi_params;
+    fastcgi_param    X-WEBAUTH-USER $webuser;
+    fastcgi_param    SCRIPT_FILENAME $document_root/img/index.php;
+    fastcgi_param    SCRIPT_NAME /img/index.php;
+    fastcgi_pass     127.0.0.1:9000;
+  }
+}
+```
+
+*The rest of this document is the original readme from the forked repo.*
 
 [![Discord badge](https://img.shields.io/discord/494235589416189974)](https://chevereto.com/go/discord)
 
